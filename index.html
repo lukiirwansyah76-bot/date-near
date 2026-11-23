@@ -1,91 +1,213 @@
-!DOCTYPE html>
+
+<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="DATE NEAR - Temukan teman baru dan kenalan lebih dekat di seluruh Indonesia.">
-<title>DATE NEAR - Temukan yang Dekat</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DATE NEAR - Kenalan Lebih Dekat</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Arial,sans-serif;background:#100d1c;color:white}
-header{padding:22px 7%;display:flex;justify-content:space-between;align-items:center}
-.logo{font-size:25px;font-weight:bold;color:#ff68a6}
-nav a{color:white;text-decoration:none;margin-left:18px;font-size:14px}
-.hero{text-align:center;padding:85px 20px 65px;background:linear-gradient(140deg,#25133e,#671c55,#25133e)}
-.hero h1{font-size:clamp(36px,7vw,65px);margin-bottom:18px}
-.hero h1 span{color:#ff72ad}
-.hero p{color:#e4d9eb;line-height:1.7;max-width:540px;margin:auto}
-.actions{margin-top:30px}
-.btn{display:inline-block;padding:14px 25px;border-radius:30px;background:#f34c91;color:white;text-decoration:none;font-weight:bold;margin:5px}
-.btn.secondary{background:transparent;border:1px solid #fff}
-.section{padding:55px 7%;text-align:center}
-.section h2{font-size:29px;margin-bottom:15px}
-.section p{color:#c7bbd2;line-height:1.7}
-.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px;margin-top:30px}
-.feature{background:#211a30;padding:25px;border:1px solid #40304f;border-radius:16px}
-.feature h3{margin-bottom:12px;color:#ff83b5}
-footer{text-align:center;padding:30px 15px;color:#a99bb8;background:#0b0912;font-size:13px}
-.notice{margin:20px auto;max-width:650px;padding:15px;background:#291e35;border-radius:12px;color:#e6d8ec;font-size:13px;line-height:1.7}
-@media(max-width:600px){header{padding:18px 5%}nav a{margin-left:8px;font-size:12px}.hero{padding:65px 18px}}
+*{box-sizing:border-box}
+body{margin:0;background:#120e20;color:white;font-family:Arial,sans-serif}
+header{padding:22px;text-align:center;background:#20152f}
+.logo{font-size:27px;font-weight:bold;color:#ff70ac}
+main{max-width:480px;margin:35px auto;padding:20px}
+.card{background:#211a32;padding:25px;border-radius:18px;border:1px solid #49334f}
+h1{text-align:center}
+p{text-align:center;color:#cbbbd3;line-height:1.6}
+.tabs{display:flex;gap:10px;margin:25px 0}
+button{cursor:pointer;border:0;border-radius:9px;padding:13px;background:#ed4e91;color:white;font-weight:bold}
+.tabs button{flex:1}
+.tabs .active{background:#a82c76}
+input{width:100%;padding:14px;margin:8px 0 15px;border-radius:9px;border:1px solid #594766;background:#130f20;color:white}
+label{font-size:13px;color:#e8dce9}
+form button{width:100%;margin-top:10px}
+.hidden{display:none}
+#message{padding:12px;border-radius:9px;background:#30243d;margin-top:15px;font-size:13px;line-height:1.6}
+footer{text-align:center;color:#988aa5;padding:25px;font-size:12px}
 </style>
 </head>
 <body>
-<header>
-<div class="logo">DATE NEAR ♥</div>
-<nav>
-<a href="#fitur">Fitur</a>
-<a href="#tentang">Tentang</a>
-</nav>
-</header>
+<header><div class="logo">DATE NEAR ♥</div></header>
 
 <main>
-<section class="hero">
-<h1>Temukan yang <span>Dekat.</span></h1>
-<p>Kenalan lebih dekat, temukan teman baru, dan bangun hubungan yang bermakna bersama orang dewasa di seluruh Indonesia.</p>
-<div class="actions">
-<a class="btn" href="#daftar">Segera Hadir</a>
-<a class="btn secondary" href="#fitur">Kenali Kami</a>
-</div>
-<div class="notice">♥ DATE NEAR · Platform perkenalan untuk pengguna berusia 18 tahun ke atas.</div>
-</section>
+<div class="card">
+<h1>Temukan yang Dekat</h1>
+<p>Kenalan, berteman, dan temukan hubungan baru di Indonesia.</p>
 
-<section class="section" id="fitur">
-<h2>Kenalan dengan Cara Baru</h2>
-<p>Dirancang agar perkenalan terasa lebih mudah dan nyaman.</p>
-<div class="features">
-<div class="feature">
-<h3>♥ Profil Personal</h3>
-<p>Tampilkan minat, hobi, dan cerita tentang dirimu.</p>
+<div class="tabs">
+<button id="registerTab" class="active">Daftar</button>
+<button id="loginTab">Masuk</button>
 </div>
-<div class="feature">
-<h3>⌖ Teman Sekitar</h3>
-<p>Temukan kenalan berdasarkan kota dan wilayah.</p>
-</div>
-<div class="feature">
-<h3>♡ Match</h3>
-<p>Saling tertarik sebelum memulai percakapan.</p>
-</div>
-<div class="feature">
-<h3>☏ Chat Pribadi</h3>
-<p>Bangun komunikasi setelah cocok.</p>
-</div>
-</div>
-</section>
 
-<section class="section" id="tentang">
-<h2>Tentang DATE NEAR</h2>
-<p>Kami membangun ruang perkenalan digital yang mengutamakan kenyamanan, keamanan, dan hubungan yang saling menghargai.</p>
-</section>
+<form id="registerForm">
+<label>Nama tampilan</label>
+<input id="name" required maxlength="40" placeholder="Nama kamu">
 
-<section class="section" id="daftar">
-<h2>Segera Hadir di Indonesia</h2>
-<p>DATE NEAR sedang dalam tahap pengembangan. Nantikan peluncurannya.</p>
-</section>
+<label>Tanggal lahir</label>
+<input id="birth" type="date" required>
+
+<label>Email</label>
+<input id="regEmail" type="email" required placeholder="Email aktif">
+
+<label>Password (minimal 8 karakter)</label>
+<input id="regPassword" type="password" minlength="8" required placeholder="Buat password">
+
+<button type="submit">Buat Akun</button>
+</form>
+
+<form id="loginForm" class="hidden">
+<label>Email</label>
+<input id="loginEmail" type="email" required placeholder="Email">
+
+<label>Password</label>
+<input id="loginPassword" type="password" required placeholder="Password">
+
+<button type="submit">Masuk</button>
+</form>
+
+<div id="message" class="hidden" role="status"></div>
+</div>
+
+<div id="account" class="card hidden" style="margin-top:20px">
+<h2 id="welcome"></h2>
+<p>Akun DATE NEAR kamu sudah masuk.</p>
+<button id="logout">Keluar</button>
+</div>
 </main>
 
 <footer>
-<p>DATE NEAR © 2026 · LUKI DIGITAL VISION</p>
-<p>18+ | Kenali dengan aman, bertemu dengan bijak.</p>
+DATE NEAR © 2026 · LUKI DIGITAL VISION<br>
+Khusus pengguna dewasa 18 tahun ke atas.
 </footer>
+
+<script>
+const SUPABASE_URL = "https://ubyhzccenokfxirhddtn.supabase.co";
+const SUPABASE_KEY = "sb_publishable_IjtQLE7sFdW31-STgIc0Xw_ws9YjAbM";
+
+const client = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+const $ = id => document.getElementById(id);
+
+function message(text){
+  $("message").textContent = text;
+  $("message").classList.remove("hidden");
+}
+
+function ageIsValid(date){
+  const birth = new Date(date + "T00:00:00");
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const beforeBirthday =
+    today.getMonth() < birth.getMonth() ||
+    (today.getMonth() === birth.getMonth() &&
+     today.getDate() < birth.getDate());
+  if(beforeBirthday) age--;
+  return age >= 18 && birth <= today;
+}
+
+$("registerTab").onclick = () => {
+  $("registerForm").classList.remove("hidden");
+  $("loginForm").classList.add("hidden");
+  $("registerTab").classList.add("active");
+  $("loginTab").classList.remove("active");
+  $("message").classList.add("hidden");
+};
+
+$("loginTab").onclick = () => {
+  $("loginForm").classList.remove("hidden");
+  $("registerForm").classList.add("hidden");
+  $("loginTab").classList.add("active");
+  $("registerTab").classList.remove("active");
+  $("message").classList.add("hidden");
+};
+
+$("registerForm").onsubmit = async e => {
+  e.preventDefault();
+
+  const name = $("name").value.trim();
+  const birth = $("birth").value;
+  const email = $("regEmail").value.trim();
+  const password = $("regPassword").value;
+
+  if(!ageIsValid(birth)){
+    message("Pendaftaran hanya untuk pengguna berusia minimal 18 tahun.");
+    return;
+  }
+
+  message("Sedang membuat akun...");
+
+  const {data,error} = await client.auth.signUp({
+    email,
+    password,
+    options:{
+      data:{
+        display_name:name,
+        birth_date:birth
+      }
+    }
+  });
+
+  if(error){
+    message("Pendaftaran gagal: " + error.message);
+    return;
+  }
+
+  if(data.session){
+    message("Pendaftaran berhasil! Selamat datang di DATE NEAR.");
+    await showAccount(data.session.user);
+  }else{
+    message("Akun berhasil didaftarkan. Silakan periksa email untuk konfirmasi sebelum masuk.");
+  }
+};
+
+$("loginForm").onsubmit = async e => {
+  e.preventDefault();
+  message("Sedang masuk...");
+
+  const {data,error} = await client.auth.signInWithPassword({
+    email:$("loginEmail").value.trim(),
+    password:$("loginPassword").value
+  });
+
+  if(error){
+    message("Login gagal: " + error.message);
+    return;
+  }
+
+  message("Berhasil masuk!");
+  await showAccount(data.user);
+};
+
+async function showAccount(user){
+  if(!user) return;
+
+  $("account").classList.remove("hidden");
+  $("welcome").textContent =
+    "Halo, " + (user.user_metadata.display_name || "Pengguna") + "!";
+}
+
+$("logout").onclick = async () => {
+  const {error} = await client.auth.signOut();
+  if(error){
+    message("Gagal keluar: " + error.message);
+    return;
+  }
+  $("account").classList.add("hidden");
+  message("Kamu sudah keluar dari akun.");
+};
+
+client.auth.onAuthStateChange((event,session) => {
+  if(session) showAccount(session.user);
+});
+
+(async()=>{
+  const {data} = await client.auth.getSession();
+  if(data.session) showAccount(data.session.user);
+})();
+</script>
 </body>
 </html>
