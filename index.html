@@ -1,77 +1,195 @@
-< pengguna berusia minimal 18 tahun.");
-    return;
-  }
 
-  message("Sedang membuat akun...");
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DATE NEAR ♥ - Temukan yang Dekat</title>
+  <meta name="description" content="DATE NEAR membantu orang dewasa menemukan teman dan koneksi baru.">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 24px;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg,#160d24,#342044);
+      color: white; font-family: Arial, sans-serif;
+    }
+    .container {
+      width: 100%; max-width: 430px;
+      padding: 28px; border-radius: 18px;
+      background: #21172d; box-shadow: 0 10px 35px #0006;
+    }
+    h1 { text-align: center; color: #ff6b9d; margin-bottom: 5px; }
+    .tagline { text-align: center; color: #c8b8d4; margin-bottom: 25px; }
+    input {
+      width: 100%; padding: 13px; margin: 7px 0;
+      border: 1px solid #594565; border-radius: 9px;
+      background: #30233d; color: white; font-size: 15px;
+    }
+    button {
+      width: 100%; padding: 13px; margin-top: 12px;
+      border: 0; border-radius: 9px;
+      background: #ff5d91; color: white;
+      font-size: 16px; font-weight: bold; cursor: pointer;
+    }
+    .secondary { background: #493653; }
+    .hidden { display: none; }
+    #message { color: #ffd2df; font-size: 14px; line-height: 1.5; }
+    .note { color: #bcaec7; font-size: 12px; text-align: center; margin-top: 18px; }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <h1>DATE NEAR ♥</h1>
+    <p class="tagline">Temukan yang Dekat</p>
 
-  const {data,error} = await client.auth.signUp({
-    email,
-    password,
-    options:{
-      data:{
-        display_name:name,
-        birth_date:birth
+    <section id="authSection">
+      <div id="registerFields">
+        <input id="name" type="text" placeholder="Nama lengkap">
+        <input id="birthdate" type="date" aria-label="Tanggal lahir">
+      </div>
+
+      <input id="email" type="email" placeholder="Alamat email">
+      <input id="password" type="password" placeholder="Kata sandi (minimal 8 karakter)">
+
+      <button id="registerBtn">Daftar</button>
+      <button id="loginBtn" class="secondary">Masuk</button>
+      <p id="message"></p>
+    </section>
+
+    <section id="userSection" class="hidden">
+      <h2>Selamat datang!</h2>
+      <p id="userInfo"></p>
+      <p>Akun DATE NEAR berhasil terhubung.</p>
+      <button id="logoutBtn">Keluar</button>
+    </section>
+
+    <p class="note">
+      DATE NEAR hanya untuk pengguna berusia 18 tahun ke atas.
+      Jaga keamanan dan privasi akun Anda.
+    </p>
+  </main>
+
+  <script>
+    const SUPABASE_URL = "https://ubyhzccenokfxirhddtn.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_IjtQLE7sFdW31-STgIc0Xw_ws9YjAbM";
+
+    const supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+    const message = document.getElementById("message");
+
+    function showMessage(text) {
+      message.textContent = text;
+    }
+
+    function calculateAge(dateString) {
+      const birth = new Date(dateString + "T00:00:00");
+      const today = new Date();
+      let age = today.getFullYear() - birth.getFullYear();
+      const month = today.getMonth() - birth.getMonth();
+
+      if (month < 0 || (month === 0 && today.getDate() < birth.getDate())) {
+        age--;
+      }
+      return age;
+    }
+
+    async function register() {
+      const name = document.getElementById("name").value.trim();
+      const birthdate = document.getElementById("birthdate").value;
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (!name || !birthdate || !email || !password) {
+        return showMessage("Lengkapi semua data terlebih dahulu.");
+      }
+
+      if (calculateAge(birthdate) < 18) {
+        return showMessage("Pendaftaran hanya untuk pengguna berusia 18 tahun ke atas.");
+      }
+
+      if (password.length < 8) {
+        return showMessage("Kata sandi minimal 8 karakter.");
+      }
+
+      showMessage("Sedang membuat akun...");
+
+      const { data, error } = await supabaseClient.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            display_name: name,
+            birth_date: birthdate
+          }
+        }
+      });
+
+      if (error) return showMessage(error.message);
+
+      if (data.session) {
+        showMessage("Pendaftaran berhasil!");
+      } else {
+        showMessage("Akun dibuat. Silakan periksa email untuk konfirmasi pendaftaran.");
       }
     }
-  });
 
-  if(error){
-    message("Pendaftaran gagal: " + error.message);
-    return;
-  }
+    async function login() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
 
-  if(data.session){
-    message("Pendaftaran berhasil! Selamat datang di DATE NEAR.");
-    await showAccount(data.session.user);
-  }else{
-    message("Akun berhasil didaftarkan. Silakan periksa email untuk konfirmasi sebelum masuk.");
-  }
-};
+      if (!email || !password) {
+        return showMessage("Masukkan email dan kata sandi.");
+      }
 
-$("loginForm").onsubmit = async e => {
-  e.preventDefault();
-  message("Sedang masuk...");
+      showMessage("Sedang masuk...");
 
-  const {data,error} = await client.auth.signInWithPassword({
-    email:$("loginEmail").value.trim(),
-    password:$("loginPassword").value
-  });
+      const { error } = await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      });
 
-  if(error){
-    message("Login gagal: " + error.message);
-    return;
-  }
+      if (error) showMessage(error.message);
+    }
 
-  message("Berhasil masuk!");
-  await showAccount(data.user);
-};
+    async function logout() {
+      const { error } = await supabaseClient.auth.signOut();
+      if (error) showMessage(error.message);
+    }
 
-async function showAccount(user){
-  if(!user) return;
+    function updatePage(session) {
+      const loggedIn = !!session;
 
-  $("account").classList.remove("hidden");
-  $("welcome").textContent =
-    "Halo, " + (user.user_metadata.display_name || "Pengguna") + "!";
-}
+      document.getElementById("authSection").classList.toggle("hidden", loggedIn);
+      document.getElementById("userSection").classList.toggle("hidden", !loggedIn);
 
-$("logout").onclick = async () => {
-  const {error} = await client.auth.signOut();
-  if(error){
-    message("Gagal keluar: " + error.message);
-    return;
-  }
-  $("account").classList.add("hidden");
-  message("Kamu sudah keluar dari akun.");
-};
+      if (loggedIn) {
+        const user = session.user;
+        const displayName = user.user_metadata?.display_name || user.email;
+        document.getElementById("userInfo").textContent =
+          "Halo, " + displayName;
+      }
+    }
 
-client.auth.onAuthStateChange((event,session) => {
-  if(session) showAccount(session.user);
-});
+    document.getElementById("registerBtn").addEventListener("click", register);
+    document.getElementById("loginBtn").addEventListener("click", login);
+    document.getElementById("logoutBtn").addEventListener("click", logout);
 
-(async()=>{
-  const {data} = await client.auth.getSession();
-  if(data.session) showAccount(data.session.user);
-})();
-</script>
+    async function initialize() {
+      const { data } = await supabaseClient.auth.getSession();
+      updatePage(data.session);
+
+      supabaseClient.auth.onAuthStateChange((_event, session) => {
+        updatePage(session);
+      });
+    }
+
+    initialize();
+  </script>
 </body>
 </html>
